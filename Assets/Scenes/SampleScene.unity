@@ -256,6 +256,7 @@ MonoBehaviour:
   lastCard: {fileID: 0}
   cardPrefab: {fileID: 4044416091511809933, guid: 5cc23d00d173a2e49bb4a7980f4b5342, type: 3}
   deck: {fileID: 1736803186}
+  maxLevel: 1
 --- !u!4 &479452959
 Transform:
   m_ObjectHideFlags: 0

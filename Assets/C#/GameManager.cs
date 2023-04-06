@@ -8,6 +8,12 @@ public class GameManager : MonoBehaviour
     public GameObject cardPrefab;
     public Transform deck;
 
+    public int maxLevel;
+
+    void Awake() {
+        Application.targetFrameRate = 60;
+    }
+
     void Start() {
         NextCard();
     }
@@ -21,7 +27,9 @@ public class GameManager : MonoBehaviour
     void NextCard(){
         Card newCard = GetCard();
         lastCard = newCard;
-
+        lastCard.manager = this;
+        lastCard.level = Random.Range(0,maxLevel);
+        lastCard.gameObject.SetActive(true);
         StartCoroutine(WaitNext());
     }
 
