@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour
     public Card lastCard;
     public GameObject cardPrefab;
     public Transform deck;
+    public GameObject effectPrefab;
+    public Transform  effectGroup;
 
     public int maxLevel;
 
@@ -19,8 +21,13 @@ public class GameManager : MonoBehaviour
     }
 
     Card GetCard(){
-        GameObject instant = Instantiate(cardPrefab, deck);
-        Card instantCard = instant.GetComponent<Card>();
+        //이팩트 생성
+        GameObject instantEffectObj = Instantiate(effectPrefab, effectGroup);
+        ParticleSystem instantEffect = instantEffectObj.GetComponent<ParticleSystem>();
+        //카드 생성
+        GameObject instantCardObj = Instantiate(cardPrefab, deck);
+        Card instantCard = instantCardObj.GetComponent<Card>();
+        instantCard.effect = instantEffect;
         return instantCard;
     }
 
