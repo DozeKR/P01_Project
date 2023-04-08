@@ -10,7 +10,9 @@ public class GameManager : MonoBehaviour
     public GameObject effectPrefab;
     public Transform  effectGroup;
 
+    public int score;
     public int maxLevel;
+    public bool isOver;
 
     void Awake() {
         Application.targetFrameRate = 60;
@@ -32,6 +34,10 @@ public class GameManager : MonoBehaviour
     }
 
     void NextCard(){
+        if(isOver){
+            return;
+        }
+
         Card newCard = GetCard();
         lastCard = newCard;
         lastCard.manager = this;
@@ -61,5 +67,28 @@ public class GameManager : MonoBehaviour
             return;
         lastCard.Drop();
         lastCard = null;
+    }
+
+    public void GameOver(){
+        if(isOver){
+            return;
+        }
+
+        isOver = true;
+        
+        StartCoroutine(GameOverRoutine());
+    }
+
+    IEnumerator GameOverRoutine(){
+        Card[] cards = GameObject.FindObjectsOfType<Card>();
+
+        for(int i=0; i < cards.Length; i++){
+            cards[i].rigid.simulated = false;
+        }
+
+        for(int i=0; i < cards.Length; i++){
+            cards[i].Hide(Vector3.up * 100);
+            yield return new WaitForSeconds(0.2f);
+        }
     }
 }
