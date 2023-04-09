@@ -10,6 +10,8 @@ public class Card : MonoBehaviour
     public int level;
     public bool isDrag;
     public bool isMerge;
+    public bool isWarning;
+    public bool isAttach;
 
     public Rigidbody2D rigid;
     CircleCollider2D col;
@@ -17,7 +19,7 @@ public class Card : MonoBehaviour
     SpriteRenderer spriteRenderer;
 
     float deadTime;
-
+    
     void Awake(){
         rigid = GetComponent<Rigidbody2D>();
         col = GetComponent<CircleCollider2D>();
@@ -57,6 +59,23 @@ public class Card : MonoBehaviour
     public void Drop(){
         isDrag = false;
         rigid.simulated = true;
+    }
+
+    void OnCollisionEnter2D(Collision2D collision) {
+        StartCoroutine(AttachRoutine());
+    }
+
+    IEnumerator AttachRoutine(){
+        if(isAttach){
+            yield break;
+        }
+
+        isAttach = true;
+        manager.SfxPlay(GameManager.Sfx.Attach);
+
+        yield return new WaitForSeconds(0.2f);
+
+        isAttach = false;
     }
 
     void OnCollisionStay2D(Collision2D collision) {
@@ -130,6 +149,7 @@ public class Card : MonoBehaviour
 
         anim.SetInteger("Level", level + 1);
         EffectPlay();
+        manager.SfxPlay(GameManager.Sfx.LevelUp);
 
         yield return new WaitForSeconds(0.3f);
         
@@ -147,6 +167,10 @@ public class Card : MonoBehaviour
             if(deadTime > 2){
                 spriteRenderer.color = new Color(0.9f, 0.1f, 0.1f);
             }
+            if(deadTime > 3 && !isWarning){
+                manager.SfxPlay(GameManager.Sfx.Warning);
+                isWarning = true;
+            }
             if(deadTime > 5){
                 manager.GameOver();
             }
@@ -157,6 +181,7 @@ public class Card : MonoBehaviour
         if(collision.tag == "Finish"){
             deadTime = 0;
             spriteRenderer.color = Color.white;
+            isWarning = false;
         }
     }
 
