@@ -31,6 +31,24 @@ public class Card : MonoBehaviour
         anim.SetInteger("Level", level);
     }
 
+    void OnDisable() {
+        //카드 속성 초기화
+        level = 0;
+        isDrag = false;
+        isMerge = false;
+        isWarning = false;
+        isAttach = false;
+        //카드 트랜스폼 초기화
+        transform.localPosition = Vector3.zero;
+        transform.localRotation = Quaternion.identity;
+        transform.localScale = Vector3.zero;
+        //카드 물리 초기화
+        rigid.simulated = false;
+        rigid.velocity = Vector2.zero;
+        rigid.angularVelocity = 0;
+        col.enabled = true;
+    }
+
     void Update(){
         if(isDrag){
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);

@@ -4,11 +4,18 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public Card lastCard;
     public GameObject cardPrefab;
     public Transform deck;
+    public List<Card> cardPool;
+
     public GameObject effectPrefab;
     public Transform  effectGroup;
+    public List<ParticleSystem> effectPool;
+
+    [Range(1, 30)]
+    public int poolSize;
+    public int poolCursor;
+    public Card lastCard;
 
     public AudioSource bgmPlayer;
     public AudioSource[] sfxPlayer;
@@ -22,6 +29,13 @@ public class GameManager : MonoBehaviour
 
     void Awake() {
         Application.targetFrameRate = 60;
+
+        cardPool = new List<Card>();
+        effectPool = new List<ParticleSystem>();
+
+        for(int i=0; i < poolSize; i++){
+            MakeCard();
+        }
     }
 
     void Start() {
@@ -29,15 +43,33 @@ public class GameManager : MonoBehaviour
         NextCard();
     }
 
-    Card GetCard(){
+    Card MakeCard(){
         //이팩트 생성
         GameObject instantEffectObj = Instantiate(effectPrefab, effectGroup);
+        instantEffectObj.name = "Effect " + effectPool.Count;
         ParticleSystem instantEffect = instantEffectObj.GetComponent<ParticleSystem>();
+        effectPool.Add(instantEffect);
+
         //카드 생성
         GameObject instantCardObj = Instantiate(cardPrefab, deck);
+        instantCardObj.name = "Card " + cardPool.Count;
         Card instantCard = instantCardObj.GetComponent<Card>();
+        instantCard.manager = this;
         instantCard.effect = instantEffect;
+        cardPool.Add(instantCard);
+
         return instantCard;
+    }
+
+    Card GetCard(){
+        for(int i=0; i < cardPool.Count; i++){
+            poolCursor = (poolCursor + 1) % cardPool.Count;
+            if(!cardPool[poolCursor].gameObject.activeSelf){
+                return cardPool[poolCursor];
+            }
+        }
+        
+        return MakeCard();
     }
 
     void NextCard(){
@@ -47,7 +79,6 @@ public class GameManager : MonoBehaviour
 
         Card newCard = GetCard();
         lastCard = newCard;
-        lastCard.manager = this;
         lastCard.level = Random.Range(0,maxLevel);
         lastCard.gameObject.SetActive(true);
 

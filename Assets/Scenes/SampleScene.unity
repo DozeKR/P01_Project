@@ -253,11 +253,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40642599134ba9e46b54042dfcd93c1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lastCard: {fileID: 0}
   cardPrefab: {fileID: 4044416091511809933, guid: 5cc23d00d173a2e49bb4a7980f4b5342, type: 3}
   deck: {fileID: 1736803186}
+  cardPool: []
   effectPrefab: {fileID: 693377494736259449, guid: 5f3ca464db1246b4485605b25410ec83, type: 3}
   effectGroup: {fileID: 1021009245}
+  effectPool: []
+  poolSize: 5
+  poolCursor: 0
+  lastCard: {fileID: 0}
   bgmPlayer: {fileID: 1012558152}
   sfxPlayer:
   - {fileID: 575228326}
