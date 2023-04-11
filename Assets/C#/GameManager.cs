@@ -1,9 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    [Header("[Core]")]
+    public int score;
+    public int maxLevel;
+    public bool isOver;
+
+    [Header("[Object Pooling]")]
     public GameObject cardPrefab;
     public Transform deck;
     public List<Card> cardPool;
@@ -17,15 +25,24 @@ public class GameManager : MonoBehaviour
     public int poolCursor;
     public Card lastCard;
 
+    [Header("[Audio]")]
     public AudioSource bgmPlayer;
     public AudioSource[] sfxPlayer;
     public AudioClip[] sfxClip;
     public enum Sfx { Next, LevelUp, Button, Over, Warning, Attach}
     int sfxCursor;
 
-    public int score;
-    public int maxLevel;
-    public bool isOver;
+    [Header("[UI]")]
+    public GameObject startGroup;
+    public GameObject endGroup;
+    public Text scoreText;
+    public Text maxScoreText;
+    public Text subScoreText;
+
+    [Header("[ETC]")]
+    public GameObject cutline;
+    public GameObject bottom;
+
 
     void Awake() {
         Application.targetFrameRate = 60;
@@ -36,11 +53,27 @@ public class GameManager : MonoBehaviour
         for(int i=0; i < poolSize; i++){
             MakeCard();
         }
+
+        if(!PlayerPrefs.HasKey("MaxScore")){
+            PlayerPrefs.SetInt("MaxScore", 0);
+        }
+        maxScoreText.text = PlayerPrefs.GetInt("MaxScore").ToString();
     }
 
-    void Start() {
+    public void GameStart() {
+        //오브젝트 활성화
+        cutline.SetActive(true);
+        bottom.SetActive(true);
+        scoreText.gameObject.SetActive(true);
+        maxScoreText.gameObject.SetActive(true);
+        startGroup.SetActive(false);
+
+        //오디오
         bgmPlayer.Play();
-        NextCard();
+        SfxPlay(Sfx.Button);
+        
+        //게임 시작(카드생성)
+        Invoke("NextCard", 1.5f);
     }
 
     Card MakeCard(){
@@ -120,12 +153,15 @@ public class GameManager : MonoBehaviour
     }
 
     IEnumerator GameOverRoutine(){
+        //모든 카드 가져오기
         Card[] cards = GameObject.FindObjectsOfType<Card>();
 
+        //모든 카드 물리효과 비활성화
         for(int i=0; i < cards.Length; i++){
             cards[i].rigid.simulated = false;
         }
 
+        //모든 카드를 하나씩 접근해서 지우기
         for(int i=0; i < cards.Length; i++){
             cards[i].Hide(Vector3.up * 100);
             yield return new WaitForSeconds(0.2f);
@@ -133,7 +169,26 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
 
+        //최고점수 갱신
+        int maxScore = Mathf.Max(score, PlayerPrefs.GetInt("MaxScore"));
+        PlayerPrefs.SetInt("MaxScore", maxScore);
+        
+        //게임오버 UI
+        subScoreText.text = "SCORE : " + scoreText.text;
+        endGroup.SetActive(true);
+
+        bgmPlayer.Stop();
         SfxPlay(Sfx.Over);
+    }
+
+    public void Reset(){
+        SfxPlay(Sfx.Button);
+        StartCoroutine(ResetRoutine());
+    }
+
+    IEnumerator ResetRoutine(){
+        yield return new WaitForSeconds(1f);
+        SceneManager.LoadScene("Main");
     }
 
     public void SfxPlay(Sfx type){
@@ -160,5 +215,15 @@ public class GameManager : MonoBehaviour
 
         sfxPlayer[sfxCursor].Play();
         sfxCursor = (sfxCursor + 1) % sfxPlayer.Length;
+    }
+
+    void Update(){
+        if(Input.GetButtonDown("Cancel")){
+            Application.Quit();
+        }
+    }
+
+    void LateUpdate() {
+        scoreText.text = score.ToString();
     }
 }
