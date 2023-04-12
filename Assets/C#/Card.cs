@@ -8,6 +8,7 @@ public class Card : MonoBehaviour
     public ParticleSystem effect;
 
     public int level;
+    public int type;
     public bool isDrag;
     public bool isMerge;
     public bool isWarning;
@@ -28,12 +29,15 @@ public class Card : MonoBehaviour
     }
 
     void OnEnable() {
+        type = Random.Range(0,4);
         anim.SetInteger("Level", level);
+        anim.SetInteger("Type", type);
     }
 
     void OnDisable() {
         //카드 속성 초기화
         level = 0;
+        type = 0;
         isDrag = false;
         isMerge = false;
         isWarning = false;
@@ -101,7 +105,7 @@ public class Card : MonoBehaviour
             Card other = collision.gameObject.GetComponent<Card>();
 
             // 카드합치기조건
-            if(level == other.level && !isMerge && !other.isMerge && level < 3){
+            if(level == other.level && !isMerge && !other.isMerge && level < 3 && type == other.type){
                 float meX = transform.position.x;
                 float meY = transform.position.y;
                 float otherX = other.transform.position.x;
